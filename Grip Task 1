@@ -1,0 +1,150 @@
+GRIP-TASK 1
+Prediction using Supervised ML
+by Amisha Goswami 
+
+This is a simple linear regression task as it involves just 2 variables.In this notebook we will predict the percentage of marks that a student is expected to score based upon the number of hours they studied.
+
+In [33]:
+#importing libraries
+import pandas as pd
+import numpy as np
+
+import matplotlib.pyplot as plt  
+%matplotlib inline
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import r2_score
+from sklearn.metrics import mean_absolute_error
+In [34]:
+# Let's read the data 
+data = pd.read_csv("http://bit.ly/w-data")
+In [35]:
+data.head(10)
+Out[35]:
+Hours	Scores
+0	2.5	21
+1	5.1	47
+2	3.2	27
+3	8.5	75
+4	3.5	30
+5	1.5	20
+6	9.2	88
+7	5.5	60
+8	8.3	81
+9	2.7	25
+In [36]:
+#describing the dataset
+data.describe()
+Out[36]:
+Hours	Scores
+count	25.000000	25.000000
+mean	5.012000	51.480000
+std	2.525094	25.286887
+min	1.100000	17.000000
+25%	2.700000	30.000000
+50%	4.800000	47.000000
+75%	7.400000	75.000000
+max	9.200000	95.000000
+Plotting data points on 2-D graph to find any relationship between the data
+In [32]:
+#Plotting the distribution of scores
+data.plot(x='Hours', y='Scores', style='o')  
+plt.title('Hours vs Percentage')  
+plt.xlabel('Hours Studied')  
+plt.ylabel('Percentage Score')  
+plt.show()
+
+Hence, we see that there is a positive linear relation between the number of hours studied and percentage of score.¶
+Correlation Plot
+In [39]:
+import seaborn as sns
+plt.figure(figsize=(5,5))
+correlation_matrix = data.corr()
+# annot = True to print the values inside the square
+sns.heatmap(data=correlation_matrix, annot=True)
+plt.show()
+
+Preparing and Spliting this data into training and test sets
+In [40]:
+#Splitting training and testing data
+x=data.iloc[:,:-1].values
+y=data.iloc[:,1].values
+x_train, x_test, y_train, y_test= train_test_split(x, y,train_size=0.80,test_size=0.20,random_state=0)
+Training the Algorithm
+In [41]:
+from sklearn.linear_model import LinearRegression
+linearRegressor= LinearRegression()
+linearRegressor.fit(x_train, y_train)
+y_predict= linearRegressor.predict(x_train)
+In [42]:
+regressor = LinearRegression()  
+regressor.fit(x_train, y_train) 
+print("Training complete.")
+Training complete.
+In [13]:
+# Plotting the regression line
+line = regressor.coef_*x+regressor.intercept_
+# Plotting for the test data
+plt.scatter(x, y)
+plt.plot(x, line);
+plt.show()
+
+Making Predictions
+What will be predicted score if a student studies for 9.25 hrs/ day?
+In [43]:
+print('Test Score')
+print(regressor.score(x_test, y_test))
+print('Training Score')
+print(regressor.score(x_train, y_train))
+Test Score
+0.9454906892105356
+Training Score
+0.9515510725211553
+In [44]:
+from sklearn.linear_model import LinearRegression
+lm = LinearRegression()
+lm.fit(x_train.reshape(-1,1), y_train)
+Out[44]:
+LinearRegression(copy_X=True, fit_intercept=True, n_jobs=None, normalize=False)
+In [45]:
+print(x_test)
+[[1.5]
+ [3.2]
+ [7.4]
+ [2.5]
+ [5.9]]
+In [46]:
+y_hat = lm.predict(x_test.reshape(-1,1))
+In [47]:
+#Comparing the actual and predicted values
+df = pd.DataFrame({'Actual values' : y_test, 'Predicted values' : y_hat})
+df
+Out[47]:
+Actual values	Predicted values
+0	20	16.884145
+1	27	33.732261
+2	69	75.357018
+3	30	26.794801
+4	62	60.491033
+In [48]:
+#Let's pass our own data
+hours = 9.25
+hours = np.array(hours)
+pred_scores = lm.predict(hours.reshape(-1,1))
+print('No of Hours studied: ', hours)
+print('Predicted Score: ', pred_scores[0])
+No of Hours studied:  9.25
+Predicted Score:  93.69173248737538
+Th e predicted score for 9.25 hours of study/day is 93.691732788737538
+Evaluating the model
+In [50]:
+from sklearn.metrics import mean_absolute_error
+error = mean_absolute_error(y_test, y_hat)
+print('Mean absolute error: ', error)
+# To find coefficient of determination
+r2 =  r2_score(y_test, y_hat)
+print("R-Square:",r2)
+Mean absolute error:  4.183859899002975
+R-Square: 0.9454906892105356
+The accuracy of the model is 94.55%. The mean absolute error is 4.18%
+In [ ]:
